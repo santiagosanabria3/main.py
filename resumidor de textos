@@ -1,0 +1,39 @@
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+import nltk
+
+nltk.download('punkt')
+
+def summarization(text, num_sentences):
+    # 1. Dividir el texto en oraciones
+    sentences = nltk.sent_tokenize(text)
+
+    # 2. Crear matriz de conteo de palabras
+    vectorizer = CountVectorizer().fit_transform(sentences)
+    vectors = vectorizer.toarray()
+
+    # 3. Calcular similitud entre oraciones
+    similarity_matrix = cosine_similarity(vectors)
+
+    # 4. Calcular puntaje de cada oración (suma de similitudes)
+    scores = similarity_matrix.sum(axis=1)
+
+    # 5. Seleccionar las oraciones con mayor puntaje
+    ranked_sentences = sorted(((scores[i], i) for i in range(len(sentences))), reverse=True)
+    selected_sentences = ranked_sentences[:num_sentences]
+
+    # 6. Ordenar las oraciones seleccionadas según su posición original
+    selected_sentences.sort(key=lambda x: x[1])
+
+    # 7. Unir oraciones en un solo string
+    summary = ' '.join([sentences[i] for _, i in selected_sentences])
+
+    return summary
+
+# Ejemplo de uso:
+texto = """La inteligencia artificial está transformando el mundo.
+Las empresas utilizan algoritmos para optimizar procesos.
+La educación se beneficia con herramientas de aprendizaje automático.
+Los retos éticos y de privacidad siguen siendo un desafío importante."""
+print(summarization(texto, 2))
