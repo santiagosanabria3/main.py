@@ -1,0 +1,25 @@
+import discord
+from discord.ext import commands
+import os
+
+# Crea la carpeta 'images' si no existe
+if not os.path.exists("images"):
+    os.makedirs("images")
+
+bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
+
+@bot.command(name="subir")
+async def subir(ctx):
+    # Verificamos si el mensaje tiene un adjunto
+    if ctx.message.attachments:
+        for attachment in ctx.message.attachments:
+            # Guardamos la imagen con su nombre original en la carpeta 'images'
+            save_path = os.path.join("images", attachment.filename)
+            await attachment.save(save_path)
+
+            await ctx.send(f"✅ Imagen guardada como **{attachment.filename}** en la carpeta 'images'")
+    else:
+        await ctx.send("⚠️ No enviaste ninguna imagen. Por favor, adjunta una.")
+
+# Reemplaza con tu token
+bot.run("TU_TOKEN_AQUI")
